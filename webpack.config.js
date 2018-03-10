@@ -38,6 +38,6 @@ module.exports = {
   },
   devtool: 'source-map',
   devServer: {
-    publicPath: path.join('/dist/')
+    contentBase: path.join('/dist/app/')
   }
 };
