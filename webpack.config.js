@@ -1,4 +1,5 @@
 const path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const copyOptions = { debug: 'info' }
 
@@ -27,6 +28,10 @@ module.exports = {
     }]
   },
   plugins: [
+    new CleanWebpackPlugin(['app'], {
+      root: path.resolve(__dirname, 'dist'),
+      verbrose: true,
+    }),
     new CopyWebpackPlugin([
       { from: 'app/*.html', to: '../' },
       { from: 'images/*.*', to: '../app' },
@@ -38,6 +43,9 @@ module.exports = {
   },
   devtool: 'source-map',
   devServer: {
-    contentBase: path.join('/dist/app/')
+    contentBase: path.join(__dirname, '/dist/app/'),
+    compress: true,
+    port: 9000,
+    host: '0.0.0.0',
   }
 };
