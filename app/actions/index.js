@@ -1,4 +1,11 @@
-import * as types from '../actionTypes'
+import { API_REQUEST_BEGIN,
+    API_REQUEST_END,
+    API_REQUEST_ERROR,
+    API_REQUEST_LOG,
+    RETRIVED_SLUG,
+    FETCHED_DETAIL,
+    FETCH_DETAIL,
+    CLEAR_DATA } from '../actionTypes'
 
 export const getBaseUri = () => {
     return window.location.protocol + '\\\\' + window.location.host + '\\'
@@ -6,41 +13,92 @@ export const getBaseUri = () => {
 
 export const beginFetch = () => {
     return {
-        type: types.API_REQUEST_BEGIN
+        type: API_REQUEST_BEGIN
     }
 }
 
 export const endFetch = () => {
     return {
-        type: types.API_REQUEST_END
+        type: API_REQUEST_END
     }
 }
 
 export const errorFetch = (error) => {
     return {
-        type: types.API_REQUEST_ERROR,
+        type: API_REQUEST_ERROR,
         error
     }
 }
 
 export const logFetch = (json) => {
     return {
-        type: types.API_REQUEST_LOG,
+        type: API_REQUEST_LOG,
         json
     }
 }
 
 export const retrivedSlug = (data) => {
     return {
-        type: types.RETRIVED_SLUG,
+        type: RETRIVED_SLUG,
         data
     }
 }
 
-export const fetchSlug = data => dispatch => {
-    const uri = `https://autosug.ebay.com/autosug?kwd=${data}&_jgr=1&sId=0&_ch=0&callback=nil`
+export const retrivedDetailedAsset = (data) => {
+    return {
+        type: FETCHED_DETAIL,
+        data
+    }
+}
+
+export const fetchingStatusAsset = (data) => {
+    return {
+        type: FETCH_DETAIL,
+        data
+    }
+}
+
+export const clearData = () => {
+    return {
+        type: CLEAR_DATA
+    }
+}
+
+export const fetchDetailAsset = name => dispatch => {
+    dispatch(fetchingStatusAsset(name))
+
+    const uri = `http://localhost:3000/asset/${name}`
+    const opts = {
+        method: 'GET',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        mode: 'cors',
+        cache: 'default'
+    } 
     dispatch(beginFetch())
-    return fetch(uri)
+    return fetch(uri, opts)
+        .then(response => response.json())
+        .then(json => {
+            dispatch(logFetch(JSON.stringify(json, null, 2)))
+            dispatch(retrivedDetailedAsset(json))
+            dispatch(endFetch())
+        })
+        .catch(err => {
+            dispatch(errorFetch(err))
+        })
+}
+
+export const fetchSlug = data => dispatch => {
+    //const uri = `https://autosug.ebay.com/autosug?kwd=${data}&_jgr=1&sId=0&_ch=0&callback=nil`
+    const uri = `http://localhost:3000/slug/${data}`
+    
+    const opts = {
+        method: 'GET',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        mode: 'cors',
+        cache: 'default'
+    }
+    dispatch(beginFetch())
+    return fetch(uri, opts)
         .then(response => response.json())
         .then(json => {
             dispatch(logFetch(JSON.stringify(json, null, 2)))

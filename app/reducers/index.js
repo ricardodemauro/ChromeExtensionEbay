@@ -1,21 +1,11 @@
 import { combineReducers } from 'redux'
 
-import * as types from '../actionTypes'
-
-const slugReducer = (state = {}, action) => {
-    const { type, slug } = action
-    const { slugColl, assetColl } = state
-    switch(type) {
-        case types.RETRIVED_SLUG:
-        case types.SEARCH_SLUG: 
-            const nSlugColl = slugColl ? slugColl : []
-            return {
-                ...state,
-                slugColl: nSlugColl.concat(slug)
-            }
-    }
-}
+import { slugReducer } from './slugReducer'
+import { systemReducer } from './systemReducer'
 
 const rootReducer = combineReducers({
-    slugReducer
+    slugReducer,
+    systemReducer
 })
+
+export default rootReducer

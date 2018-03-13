@@ -21,10 +21,7 @@ module.exports = {
         path.resolve(__dirname, 'node_modules'),
         path.resolve(__dirname, 'bower_components')
       ],
-      loader: 'babel-loader',
-      query: {
-        presets: ['es2015', 'react']
-      }
+      loader: 'babel-loader'
     }]
   },
   plugins: [
