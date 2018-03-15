@@ -4,9 +4,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const copyOptions = { debug: 'info' }
 
 module.exports = {
-  entry: {
-    'main': path.join(__dirname, 'app', 'index.js')
-  },
+  entry: ['babel-polyfill', path.join(__dirname, 'app', 'index.js')],
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist/app')

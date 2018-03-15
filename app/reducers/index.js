@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
 
-import { slugReducer } from './slugReducer'
+import { slugReducer } from './apiReducer'
 import { systemReducer } from './systemReducer'
 
 const rootReducer = combineReducers({

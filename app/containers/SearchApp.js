@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { fetchSlug, fetchDetailAsset, clearData } from '../actions/index'
+import { fetchSlug, fetchDetailAsset, clearData } from '../actions/slugAction'
 
 import { withStyles } from 'material-ui/styles'
 import Button from 'material-ui/Button'
 import { FormControl, FormHelperText } from 'material-ui/Form'
 import Input, { InputLabel } from 'material-ui/Input'
-import { NOT_FETCHED_DETAIL } from '../actionTypes'
+import { FETCHED_KEYWORD } from '../actionTypes'
 
 const styles = theme => ({
     container: {
@@ -22,61 +22,28 @@ const styles = theme => ({
     },
 });
 
-const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'w', 'x', 'y', 'z']
-
 class SearchApp extends Component {
     static propTypes = {
         dispatch: PropTypes.func.isRequired,
         slugColl: PropTypes.array.isRequired,
-        assetColl: PropTypes.array.isRequired,
-        doneAssetColl: PropTypes.array.isRequired
+        assetColl: PropTypes.array.isRequired
     }
     constructor(props) {
         super(props)
-        this.state = { keyword: '', letter: '', letterIndex: -1 }
+        this.state = { keyword: '' }
     }
 
-    componentWillReceiveProps(nextProps) {
-        if(this.props.assetColl.length != nextProps.assetColl.length) {
-            const { dispatch } = this.props
-
-            for(let i = 0; i < nextProps.assetColl.length; i++) {
-                const asset = nextProps.assetColl[i]
-                if(asset.status == NOT_FETCHED_DETAIL)
-                    dispatch(fetchDetailAsset(asset.asset))
-            }
-        }
-        else if(nextProps.isFetching == false) {
-            const { letterIndex, keyword } = this.state
-            if(letterIndex > -1) {
-                const nLetterIndex = letterIndex + 1
-                if(nLetterIndex < letters.length) {
-                    const nLetter = letters[nLetterIndex]
-                
-                    this.setState({ letter: nLetter, letterIndex: nLetterIndex })
-                    this.dispatchSlugSearch(keyword, nLetter)
-                }
-            }
-        }
-    }
-
-    dispatchSlugSearch(keyword, letter) {
-        const { dispatch } = this.props
-
-        dispatch(fetchSlug(`${keyword} ${letter}`))
-    }
+    
 
     onSearchClick() {
         const { keyword } = this.state
         const { dispatch } = this.props
+
         console.info(`on search click ${keyword}`) 
 
         dispatch(clearData())
-
-        const letterIndex = 0
-        this.setState({ letter: letters[letterIndex], letterIndex: letterIndex })
-
-        this.dispatchSlugSearch(keyword, letters[letterIndex])
+        dispatch(fetchSlug(keyword))
+        this.setState({ keyword: keyword })
     }
 
     onChangeTextBox(event) {
@@ -85,13 +52,13 @@ class SearchApp extends Component {
 
     onDownload() {
         console.info('Download activated')
-        const { doneAssetColl } = this.props
+        const { assetColl } = this.props
 
         let rows = [['name', 'total']]
         
-        for(let i = 0; i < doneAssetColl.length; i++) {
-            const asset = doneAssetColl[i]
-            rows.push([asset.asset, asset.totalEntries])
+        for(let i = 0; i < assetColl.length; i++) {
+            const asset = assetColl[i]
+            rows.push([asset.name, asset.totalEntries])
         }
 
         let csvContent = "data:text/csv;charset=utf-8,";
@@ -104,18 +71,18 @@ class SearchApp extends Component {
         let link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "data.csv");
+        link.setAttribute('id', 'tmpLink');
         
         document.body.appendChild(link); // Required for FF
 
         link.click(); // This will download the data file named "my_data.csv".
-
     }
 
     render() {
-        const { classes, isFetching, assetColl, doneAssetColl } = this.props
-        const downloadAvailable = assetColl.length > 0 && assetColl.length == doneAssetColl.length
+        const { classes, isFetching, assetColl } = this.props
+        const downloadAvailable = assetColl.length > 0 && !isFetching
 
-        const { keyword, letter } = this.state
+        const { keyword } = this.state
         return (
             <div>
                 <div className={classes.container}>
@@ -128,9 +95,6 @@ class SearchApp extends Component {
                     <Button className={classes.button} disabled={!downloadAvailable} variant="raised" size="small" onClick={this.onDownload.bind(this)}>Download</Button>
                     
                 </div>
-                <div>
-                    <span>Processing letter {letter}</span>
-                </div>
             </div>
         )
     }
@@ -138,13 +102,13 @@ class SearchApp extends Component {
 
 const mapStateToProps = state => {
     const { slugReducer, systemReducer } = state
-    const { slugColl, assetColl, doneAssetColl } = slugReducer
+    const { slugColl, assetColl, status } = slugReducer
     const { isFetching } = systemReducer
     return {
         slugColl: slugColl !== undefined ? slugColl : [],
         isFetching: isFetching !== undefined ? isFetching : false,
         assetColl: assetColl !== undefined ? assetColl : [],
-        doneAssetColl: doneAssetColl !== undefined ? doneAssetColl : []
+        status: status !== undefined ? status : ''
     }
 }
 
