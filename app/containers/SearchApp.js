@@ -58,24 +58,27 @@ class SearchApp extends Component {
         
         for(let i = 0; i < assetColl.length; i++) {
             const asset = assetColl[i]
-            rows.push([asset.name, asset.totalEntries])
+            if(asset.name) {
+                rows.push([asset.name, asset.totalEntries])
+            }
         }
 
-        let csvContent = "data:text/csv;charset=utf-8,";
+        let csvContent = "";
         rows.forEach(function(rowArray){
             let row = rowArray.join(",");
             csvContent += row + "\r\n";
          }); 
         
-        const encodedUri = encodeURI(csvContent);
-        let link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "data.csv");
-        link.setAttribute('id', 'tmpLink');
-        
-        document.body.appendChild(link); // Required for FF
-
-        link.click(); // This will download the data file named "my_data.csv".
+        const encodedUri = csvContent;
+        //let link = document.createElement("a");
+        //link.setAttribute("href", encodedUri);
+        //link.setAttribute("download", "data.csv");
+        //link.setAttribute('id', 'tmpLink');
+        //document.body.appendChild(link); // Required for FF
+        //link.click(); // This will download the data file named "my_data.csv".
+        //chrome.tabs.create({url: encodedUri})
+        const doc = URL.createObjectURL( new Blob([encodedUri], {type: 'application/octet-binary'}) );
+        chrome.downloads.download({ url: doc, filename: 'data.csv', conflictAction: 'overwrite', saveAs: true })
     }
 
     render() {
