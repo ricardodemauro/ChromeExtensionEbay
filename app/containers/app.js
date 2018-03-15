@@ -18,6 +18,7 @@ const styles = theme => ({
     }),
     second: theme.mixins.gutters({
         width: 320,
+        marginTop: 10
     }),
     content: theme.mixins.gutters({
         width: 320,
@@ -39,7 +40,8 @@ class App extends Component {
         status: PropTypes.string,
         json: PropTypes.string,
         error: PropTypes.string,
-        date: PropTypes.string
+        date: PropTypes.string,
+        hasError: PropTypes.bool.isRequired
     }
     constructor(props) {
         super(props)
@@ -47,7 +49,7 @@ class App extends Component {
     }
 
     render() {
-        const { classes, isFetching, error, json } = this.props
+        const { classes, isFetching, error, json, hasError } = this.props
         const statusTxt = isFetching ? 'Fetching' : ''
 
         return (
@@ -81,7 +83,8 @@ const mapStateToProps = state => {
     return {
         isFetching: isFetching !== undefined ? isFetching : false,
         json: json ? json : '',
-        error: error ? error.message : ''
+        error: error ? error.message : '',
+        hasError: error !== undefined
     }
 }
 
